@@ -10,7 +10,7 @@ import javax.inject.Inject;
 
 import org.slf4j.Logger;
 
-import io.qiot.manufacturing.all.commons.domain.event.BootstrapCompletedEventDTO;
+import io.qiot.manufacturing.all.commons.domain.cdi.BootstrapCompletedEventDTO;
 import io.qiot.manufacturing.factory.facilitymanager.service.factory.FactoryService;
 import io.quarkus.runtime.StartupEvent;
 
