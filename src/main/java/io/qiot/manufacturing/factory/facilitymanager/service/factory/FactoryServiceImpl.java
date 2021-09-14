@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.Instant;
 import java.util.UUID;
 
 import javax.annotation.PostConstruct;
@@ -48,10 +47,8 @@ class FactoryServiceImpl implements FactoryService {
     @ConfigProperty(name = "qiot.factory.name")
     String FACILITY_NAME;
 
-    @ConfigProperty(name = "qiot.mqtts.ks.password")
+    @ConfigProperty(name = "qiot.certstore.password")
     String ksPassword;
-    @ConfigProperty(name = "qiot.mqtts.ts.password")
-    String tsPassword;
 
     private Path dataFilePath;
     private FactoryDataDTO factoryData;
@@ -142,14 +139,6 @@ class FactoryServiceImpl implements FactoryService {
     @Override
     public String getFactoryName() {
         return factoryData.name;
-    }
-
-    public String getTrustStorePassword() {
-        return tsPassword;
-    }
-
-    public String getKeyStorePassword() {
-        return ksPassword;
     }
 
 }

@@ -29,9 +29,9 @@ public class RegistrationServiceImpl implements RegistrationService {
     @Inject
     Logger LOGGER;
 
-    @ConfigProperty(name = "qiot.mqtts.ks.path")
+    @ConfigProperty(name = "qiot.runtime.ks.path")
     String ksPathString;
-    @ConfigProperty(name = "qiot.mqtts.ts.path")
+    @ConfigProperty(name = "qiot.runtime.ts.path")
     String tsPathString;
 
     @Inject
