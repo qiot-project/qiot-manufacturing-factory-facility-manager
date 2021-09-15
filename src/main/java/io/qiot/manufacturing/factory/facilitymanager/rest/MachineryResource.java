@@ -19,6 +19,7 @@ import org.slf4j.Logger;
 
 import io.qiot.manufacturing.all.commons.domain.landscape.MachineryDTO;
 import io.qiot.manufacturing.all.commons.domain.landscape.SubscriptionResponse;
+import io.qiot.manufacturing.all.commons.exception.SubscriptionException;
 import io.qiot.manufacturing.commons.domain.registration.EdgeSubscriptionRequest;
 import io.qiot.manufacturing.factory.facilitymanager.service.machinery.MachineryService;
 
@@ -59,7 +60,8 @@ public class MachineryResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public SubscriptionResponse subscribe(
-            @Valid EdgeSubscriptionRequest request) {
+            @Valid EdgeSubscriptionRequest request)
+            throws SubscriptionException {
         LOGGER.debug("Received subscription request by machinery {}",
                 request.name);
         SubscriptionResponse response = machineryService.subscribe(request);

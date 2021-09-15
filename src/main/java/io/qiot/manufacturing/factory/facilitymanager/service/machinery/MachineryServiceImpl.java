@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 
 import io.qiot.manufacturing.all.commons.domain.landscape.MachineryDTO;
 import io.qiot.manufacturing.all.commons.domain.landscape.SubscriptionResponse;
+import io.qiot.manufacturing.all.commons.exception.SubscriptionException;
 import io.qiot.manufacturing.commons.domain.registration.EdgeSubscriptionRequest;
 import io.qiot.manufacturing.datacenter.commons.domain.registration.MachinerySubscriptionRequest;
 import io.qiot.manufacturing.factory.facilitymanager.domain.pojo.MachineryBean;
@@ -43,7 +44,8 @@ class MachineryServiceImpl implements MachineryService {
     PlantManagerClient plantManagerClient;
 
     @Override
-    public SubscriptionResponse subscribe(EdgeSubscriptionRequest request) {
+    public SubscriptionResponse subscribe(EdgeSubscriptionRequest request)
+            throws SubscriptionException {
         /*
          * subscribe machinery
          */
@@ -53,23 +55,31 @@ class MachineryServiceImpl implements MachineryService {
         msRequest.keyStorePassword = request.keyStorePassword;
 
         SubscriptionResponse subscriptionResponse = null;
-        while (subscriptionResponse == null) {
-            // TODO: put sleep time in application.properties
-            long sleepTime = 2000;
-            try {
-                subscriptionResponse = plantManagerClient
-                        .subscribeMachinery(msRequest);
-            } catch (Exception e) {
-                LOGGER.info(
-                        "An error occurred registering the machinery. "
-                                + "Retrying in {} millis.\n Error message: {}",
-                        sleepTime, e.getMessage());
-                try {
-                    Thread.sleep(sleepTime);
-                } catch (InterruptedException ie) {
-                    Thread.currentThread().interrupt();
-                }
-            }
+        // while (subscriptionResponse == null) {
+        // // TODO: put sleep time in application.properties
+        // long sleepTime = 2000;
+        // try {
+        // subscriptionResponse = plantManagerClient
+        // .subscribeMachinery(msRequest);
+        // } catch (Exception e) {
+        // LOGGER.info(
+        // "An error occurred registering the machinery. "
+        // + "Retrying in {} millis.\n Error message: {}",
+        // sleepTime, e.getMessage());
+        // try {
+        // Thread.sleep(sleepTime);
+        // } catch (InterruptedException ie) {
+        // Thread.currentThread().interrupt();
+        // }
+        // }
+        // }
+        try {
+            subscriptionResponse = plantManagerClient
+                    .subscribeMachinery(msRequest);
+        } catch (Exception e) {
+            LOGGER.info("An error occurred registering the machinery. "
+                    + "Error message: {}", e.getMessage());
+            throw new SubscriptionException(e);
         }
 
         /*

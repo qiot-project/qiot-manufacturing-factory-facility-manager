@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import io.qiot.manufacturing.all.commons.domain.landscape.MachineryDTO;
 import io.qiot.manufacturing.all.commons.domain.landscape.SubscriptionResponse;
+import io.qiot.manufacturing.all.commons.exception.SubscriptionException;
 import io.qiot.manufacturing.commons.domain.registration.EdgeSubscriptionRequest;
 
 /**
@@ -13,7 +14,8 @@ import io.qiot.manufacturing.commons.domain.registration.EdgeSubscriptionRequest
  */
 public interface MachineryService {
 
-    SubscriptionResponse subscribe(EdgeSubscriptionRequest request);
+    SubscriptionResponse subscribe(EdgeSubscriptionRequest request)
+            throws SubscriptionException;
 
     MachineryDTO getById(UUID id);
 
