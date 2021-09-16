@@ -11,6 +11,8 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
+import org.hibernate.annotations.CreationTimestamp;
+
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 
@@ -30,6 +32,7 @@ public class MachineryBean extends PanacheEntityBase {
     @Column(nullable = false)
     public boolean active = true;
     @Column(name = "registered_on", nullable = false, columnDefinition = "TIMESTAMP")
+//    @CreationTimestamp
     public Instant registeredOn;
 
     @Override

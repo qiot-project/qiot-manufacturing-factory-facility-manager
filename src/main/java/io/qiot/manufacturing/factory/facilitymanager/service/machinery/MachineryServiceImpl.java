@@ -31,7 +31,7 @@ class MachineryServiceImpl implements MachineryService {
     Logger LOGGER;
 
     @Inject
-    FactoryService facilityService;
+    FactoryService factoryService;
 
     @Inject
     MachineryRepository machineryRepository;
@@ -50,36 +50,29 @@ class MachineryServiceImpl implements MachineryService {
          * subscribe machinery
          */
         MachinerySubscriptionRequest msRequest = new MachinerySubscriptionRequest();
+        msRequest.factoryId = factoryService.getFactoryId();
         msRequest.name = request.name;
         msRequest.serial = request.serial;
         msRequest.keyStorePassword = request.keyStorePassword;
 
         SubscriptionResponse subscriptionResponse = null;
-        // while (subscriptionResponse == null) {
-        // // TODO: put sleep time in application.properties
-        // long sleepTime = 2000;
-        // try {
-        // subscriptionResponse = plantManagerClient
-        // .subscribeMachinery(msRequest);
-        // } catch (Exception e) {
-        // LOGGER.info(
-        // "An error occurred registering the machinery. "
-        // + "Retrying in {} millis.\n Error message: {}",
-        // sleepTime, e.getMessage());
-        // try {
-        // Thread.sleep(sleepTime);
-        // } catch (InterruptedException ie) {
-        // Thread.currentThread().interrupt();
-        // }
-        // }
-        // }
-        try {
-            subscriptionResponse = plantManagerClient
-                    .subscribeMachinery(msRequest);
-        } catch (Exception e) {
-            LOGGER.info("An error occurred registering the machinery. "
-                    + "Error message: {}", e.getMessage());
-            throw new SubscriptionException(e);
+        while (subscriptionResponse == null) {
+            // TODO: put sleep time in application.properties
+            long sleepTime = 2000;
+            try {
+                subscriptionResponse = plantManagerClient
+                        .subscribeMachinery(msRequest);
+            } catch (Exception e) {
+                LOGGER.info(
+                        "An error occurred registering the machinery. "
+                                + "Retrying in {} millis.\n Error message: {}",
+                        sleepTime, e.getMessage());
+                try {
+                    Thread.sleep(sleepTime);
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                }
+            }
         }
 
         /*
@@ -89,6 +82,8 @@ class MachineryServiceImpl implements MachineryService {
         machineryBean.serial = request.serial;
         machineryBean.name = request.name;
         machineryBean.id = subscriptionResponse.id;
+        machineryBean.registeredOn = subscriptionResponse.subscribedOn;
+        
         machineryRepository.persist(machineryBean);
 
         return subscriptionResponse;

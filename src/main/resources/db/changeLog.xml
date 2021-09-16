@@ -9,23 +9,12 @@
 
     <changeSet author="datacenter-plant-manager" id="1">
       <sql>
-        create table factory (
-           id uuid not null,
-            active boolean not null,
-            name varchar(255) not null,
-            registered_on TIMESTAMP not null,
-            serial varchar(255) not null,
-            primary key (id)
-        )
-      </sql>
-      <sql>
         create table machinery (
            id uuid not null,
             active boolean not null,
             name varchar(255) not null,
             registered_on TIMESTAMP not null,
             serial varchar(255) not null,
-            factory_id uuid not null,
             primary key (id)
         )
       </sql>
@@ -36,16 +25,6 @@
       <sql>
 	    alter table if exists factory 
 	       add constraint UK_6x5lv7fkp0y7g8we8nij9jrru unique (serial)
-      </sql>
-      <sql>
-	    alter table if exists machinery 
-	       add constraint UKb87egitqw6s2cln4cpgq0g1wv unique (factory_id, serial)
-      </sql>
-      <sql>
-	    alter table if exists machinery 
-	       add constraint FKsx941tkpbcrt6b6lmahfkcg8t 
-	       foreign key (factory_id) 
-	       references factory
       </sql>
     </changeSet>
     
