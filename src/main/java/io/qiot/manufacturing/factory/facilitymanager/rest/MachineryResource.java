@@ -20,7 +20,7 @@ import org.slf4j.Logger;
 import io.qiot.manufacturing.all.commons.domain.landscape.MachineryDTO;
 import io.qiot.manufacturing.all.commons.domain.landscape.SubscriptionResponse;
 import io.qiot.manufacturing.all.commons.exception.SubscriptionException;
-import io.qiot.manufacturing.commons.domain.registration.EdgeSubscriptionRequest;
+import io.qiot.manufacturing.factory.commons.domain.registration.EdgeSubscriptionRequest;
 import io.qiot.manufacturing.factory.facilitymanager.service.machinery.MachineryService;
 
 /**

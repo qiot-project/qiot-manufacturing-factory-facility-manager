@@ -31,8 +31,7 @@ public class FactoryResource {
 
     @GET
     @Path("/id")
-    @Consumes(MediaType.TEXT_PLAIN)
-    @Produces(MediaType.TEXT_PLAIN)
+    @Produces(MediaType.APPLICATION_JSON)
     public UUID getFactoryId() {
         return factoryService.getFactoryId();
     }

@@ -6,11 +6,11 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.qiot.manufacturing.factory</groupId>
     <artifactId>facility-manager</artifactId>
-    <version>1.0.0.alpha7-SNAPSHOT</version>
+    <version>1.0.0.alpha7</version>
     <parent>
         <groupId>io.qiot.manufacturing</groupId>
         <artifactId>parent</artifactId>
-        <version>1.0.0.alpha7-SNAPSHOT</version>
+        <version>1.0.0.alpha7</version>
     </parent>
     <scm>
         <connection>scm:git:https://github.com/qiot-project/qiot-manufacturing-datacenter-facility-manager.git</connection>
@@ -49,27 +49,27 @@
         <dependency>
             <groupId>io.qiot.manufacturing.all</groupId>
             <artifactId>domain-model</artifactId>
-            <version>1.0.0.alpha7-SNAPSHOT</version>
+            <version>1.0.0.alpha7</version>
         </dependency>
         <dependency>
             <groupId>io.qiot.manufacturing.datacenter</groupId>
             <artifactId>domain-model</artifactId>
-            <version>1.0.0.alpha7-SNAPSHOT</version>
+            <version>1.0.0.alpha7</version>
         </dependency>
         <dependency>
             <groupId>io.qiot.manufacturing.factory</groupId>
             <artifactId>domain-model</artifactId>
-            <version>1.0.0.alpha7-SNAPSHOT</version>
+            <version>1.0.0.alpha7</version>
         </dependency>
         <dependency>
             <groupId>io.qiot.manufacturing.all</groupId>
             <artifactId>utilities</artifactId>
-            <version>1.0.0.alpha7-SNAPSHOT</version>
+            <version>1.0.0.alpha7</version>
         </dependency>
         <dependency>
             <groupId>io.qiot.manufacturing.datacenter</groupId>
             <artifactId>utilities</artifactId>
-            <version>1.0.0.alpha7-SNAPSHOT</version>
+            <version>1.0.0.alpha7</version>
         </dependency>
         <!-- REST -->
         <dependency>
