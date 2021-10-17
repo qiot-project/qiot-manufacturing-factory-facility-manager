@@ -9,8 +9,8 @@ import javax.ws.rs.core.MediaType;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
 import io.qiot.manufacturing.all.commons.domain.landscape.SubscriptionResponse;
-import io.qiot.manufacturing.datacenter.commons.domain.registration.FactorySubscriptionRequest;
-import io.qiot.manufacturing.datacenter.commons.domain.registration.MachinerySubscriptionRequest;
+import io.qiot.manufacturing.datacenter.commons.domain.subscription.FactorySubscriptionRequest;
+import io.qiot.manufacturing.datacenter.commons.domain.subscription.MachinerySubscriptionRequest;
 
 /**
  * @author andreabattaglia

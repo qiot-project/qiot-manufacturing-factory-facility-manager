@@ -12,13 +12,16 @@ import org.slf4j.Logger;
 import io.qiot.manufacturing.all.commons.domain.landscape.MachineryDTO;
 import io.qiot.manufacturing.all.commons.domain.landscape.SubscriptionResponse;
 import io.qiot.manufacturing.all.commons.exception.SubscriptionException;
-import io.qiot.manufacturing.datacenter.commons.domain.registration.MachinerySubscriptionRequest;
+import io.qiot.manufacturing.datacenter.commons.domain.subscription.MachinerySubscriptionRequest;
 import io.qiot.manufacturing.factory.commons.domain.registration.EdgeSubscriptionRequest;
 import io.qiot.manufacturing.factory.facilitymanager.domain.pojo.MachineryBean;
 import io.qiot.manufacturing.factory.facilitymanager.persistence.MachineryRepository;
 import io.qiot.manufacturing.factory.facilitymanager.service.factory.FactoryService;
 import io.qiot.manufacturing.factory.facilitymanager.service.registration.PlantManagerClient;
+import io.qiot.manufacturing.factory.facilitymanager.service.registration.RegistrationServiceClient;
 import io.qiot.manufacturing.factory.facilitymanager.util.converter.MachineryConverter;
+import io.qiot.ubi.all.registration.domain.CertificateRequest;
+import io.qiot.ubi.all.registration.domain.CertificateResponse;
 
 /**
  * @author andreabattaglia
@@ -41,50 +44,91 @@ class MachineryServiceImpl implements MachineryService {
 
     @Inject
     @RestClient
+    RegistrationServiceClient registrationServiceClient;
+
+    @Inject
+    @RestClient
     PlantManagerClient plantManagerClient;
 
     @Override
     public SubscriptionResponse subscribe(EdgeSubscriptionRequest request)
             throws SubscriptionException {
-        /*
-         * subscribe machinery
-         */
-        MachinerySubscriptionRequest msRequest = new MachinerySubscriptionRequest();
-        msRequest.factoryId = factoryService.getFactoryId();
-        msRequest.name = request.name;
-        msRequest.serial = request.serial;
-        msRequest.keyStorePassword = request.keyStorePassword;
 
         SubscriptionResponse subscriptionResponse = null;
-        while (subscriptionResponse == null) {
-            // TODO: put sleep time in application.properties
-            long sleepTime = 2000;
-            try {
-                subscriptionResponse = plantManagerClient
-                        .subscribeMachinery(msRequest);
-            } catch (Exception e) {
-                LOGGER.info(
-                        "An error occurred registering the machinery. "
-                                + "Retrying in {} millis.\n Error message: {}",
-                        sleepTime, e.getMessage());
+        
+        try {
+
+            /*
+             * 1 - Provision machinery certificates from the local (factory)
+             * issuer (delegate)
+             */
+            CertificateRequest certificateRequest = new CertificateRequest();
+            certificateRequest.domain = "." + factoryService.getFactoryId();
+            ;
+            certificateRequest.serial = request.serial;
+            certificateRequest.name = request.name;
+            certificateRequest.keyStorePassword = request.keyStorePassword;
+            CertificateResponse certificateResponse = registrationServiceClient
+                    .provisionCertificate(certificateRequest);
+
+            LOGGER.debug("Certificates for the new Machinery created:"//
+                    + "\nKEYSTORE:\n{}"//
+                    + "\n"//
+                    + "\nTRUSTSTORE:\n{}", //
+                    certificateResponse.keystore,
+                    certificateResponse.truststore);
+
+            /*
+             * 2 - Subscribe machinery (Globally)
+             */
+            MachinerySubscriptionRequest msRequest = new MachinerySubscriptionRequest();
+            msRequest.factoryId = factoryService.getFactoryId();
+            msRequest.name = request.name;
+            msRequest.serial = request.serial;
+            msRequest.keyStorePassword = request.keyStorePassword;
+            while (subscriptionResponse == null) {
+                // TODO: put sleep time in application.properties
+                long sleepTime = 2000;
                 try {
-                    Thread.sleep(sleepTime);
-                } catch (InterruptedException ie) {
-                    Thread.currentThread().interrupt();
+                    subscriptionResponse = plantManagerClient
+                            .subscribeMachinery(msRequest);
+                } catch (Exception e) {
+                    LOGGER.info("An error occurred registering the machinery. "
+                            + "Retrying in {} millis.\n Error message: {}",
+                            sleepTime, e.getMessage());
+                    try {
+                        Thread.sleep(sleepTime);
+                    } catch (InterruptedException ie) {
+                        Thread.currentThread().interrupt();
+                    }
                 }
             }
-        }
 
-        /*
-         * persist & flush the new entity (and get the generated ID)
-         */
-        MachineryBean machineryBean = new MachineryBean();
-        machineryBean.serial = request.serial;
-        machineryBean.name = request.name;
-        machineryBean.id = subscriptionResponse.id;
-        machineryBean.registeredOn = subscriptionResponse.subscribedOn;
-        
-        machineryRepository.persist(machineryBean);
+            /*
+             * add certs to subs response
+             */
+            subscriptionResponse.keystore = certificateResponse.keystore;
+            subscriptionResponse.truststore = certificateResponse.truststore;
+
+            /*
+             * persist & flush the new entity locally
+             */
+            MachineryBean machineryBean = new MachineryBean();
+            machineryBean.serial = request.serial;
+            machineryBean.name = request.name;
+            machineryBean.id = subscriptionResponse.id;
+            machineryBean.registeredOn = subscriptionResponse.subscribedOn;
+
+            machineryRepository.persist(machineryBean);
+
+        } catch (Exception e) {
+            // machineryRepository.delete(machineryBean);
+            LOGGER.error(
+                    "An error occurred retrieving the certificates for the factory.",
+                    e);
+            // TODO: improve exception handling
+            throw new SubscriptionException(e);
+        }
 
         return subscriptionResponse;
     }

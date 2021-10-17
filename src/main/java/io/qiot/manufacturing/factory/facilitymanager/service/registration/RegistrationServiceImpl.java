@@ -18,7 +18,7 @@ import org.slf4j.Logger;
 
 import io.qiot.manufacturing.all.commons.domain.landscape.SubscriptionResponse;
 import io.qiot.manufacturing.all.commons.exception.SubscriptionException;
-import io.qiot.manufacturing.datacenter.commons.domain.registration.FactorySubscriptionRequest;
+import io.qiot.manufacturing.datacenter.commons.domain.subscription.FactorySubscriptionRequest;
 
 /**
  * @author andreabattaglia
