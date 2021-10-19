@@ -1,7 +1,7 @@
 image:
   ## Name of the image you want to build/deploy
   ## Defaults to the release name
-  name: quay.io/qiotmanufacturing/factory-facility-manager
+  name: quay.io/qiotmanufacturing/edge-machinery
   ## Tag that you want to build/deploy
   tag: latest 
 

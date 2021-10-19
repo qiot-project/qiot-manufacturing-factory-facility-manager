@@ -9,7 +9,7 @@ RUN mvn -N io.takari:maven:wrapper
 RUN ./mvnw clean package -U -Pnative
 WORKDIR "/"
 
-FROM quay.io/qiotproject/ubi-multiarch:v1.0.2
+FROM quay.io/qiotproject/ubi-multiarch:v1.0.3
 WORKDIR /work/
 COPY --from=builder /usr/src/app/target/*-runner /work/application
 
