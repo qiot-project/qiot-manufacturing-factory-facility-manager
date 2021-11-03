@@ -119,6 +119,11 @@
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-hibernate-validator</artifactId>
         </dependency>
+        <dependency>
+            <groupId>io.fabric8</groupId>
+            <artifactId>certmanager-client</artifactId>
+            <version>5.8.0</version>
+        </dependency>
     </dependencies>
 
     <build>
