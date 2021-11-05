@@ -19,6 +19,8 @@ import org.slf4j.Logger;
 import io.qiot.manufacturing.all.commons.domain.landscape.SubscriptionResponse;
 import io.qiot.manufacturing.all.commons.exception.SubscriptionException;
 import io.qiot.manufacturing.datacenter.commons.domain.subscription.FactorySubscriptionRequest;
+import io.qiot.ubi.all.registration.client.RegistrationServiceClient;
+import io.qiot.ubi.all.registration.domain.CAIssuerRequest;
 
 /**
  * @author andreabattaglia
@@ -37,6 +39,10 @@ public class RegistrationServiceImpl implements RegistrationService {
     @Inject
     @RestClient
     PlantManagerClient plantManagerClient;
+
+    @Inject
+    @RestClient
+    RegistrationServiceClient registrationServiceClient;
 
     @Override
     public UUID register(String serial, String name, String ksPassword)
@@ -71,6 +77,12 @@ public class RegistrationServiceImpl implements RegistrationService {
                 }
             }
         }
+        
+        // create factory issuer
+        CAIssuerRequest issuerRequest=new CAIssuerRequest();
+        issuerRequest.tlsCert=subscriptionResponse.tlsCert;
+        issuerRequest.tlsKey=subscriptionResponse.tlsKey;
+        registrationServiceClient.provisionIssuer(issuerRequest);        
 
         LOGGER.debug("Registratior process results: {}", subscriptionResponse);
 
