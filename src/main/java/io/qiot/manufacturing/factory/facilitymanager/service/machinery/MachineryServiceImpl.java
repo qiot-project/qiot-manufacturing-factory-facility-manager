@@ -18,8 +18,8 @@ import io.qiot.manufacturing.factory.facilitymanager.domain.pojo.MachineryBean;
 import io.qiot.manufacturing.factory.facilitymanager.persistence.MachineryRepository;
 import io.qiot.manufacturing.factory.facilitymanager.service.factory.FactoryService;
 import io.qiot.manufacturing.factory.facilitymanager.service.registration.PlantManagerClient;
-import io.qiot.manufacturing.factory.facilitymanager.service.registration.RegistrationServiceClient;
 import io.qiot.manufacturing.factory.facilitymanager.util.converter.MachineryConverter;
+import io.qiot.ubi.all.registration.client.RegistrationServiceClient;
 import io.qiot.ubi.all.registration.domain.CertificateRequest;
 import io.qiot.ubi.all.registration.domain.CertificateResponse;
 
