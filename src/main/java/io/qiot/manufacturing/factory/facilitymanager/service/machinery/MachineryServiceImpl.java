@@ -55,7 +55,7 @@ class MachineryServiceImpl implements MachineryService {
             throws SubscriptionException {
 
         SubscriptionResponse subscriptionResponse = null;
-        
+
         try {
 
             /*
@@ -68,6 +68,7 @@ class MachineryServiceImpl implements MachineryService {
             certificateRequest.serial = request.serial;
             certificateRequest.name = request.name;
             certificateRequest.keyStorePassword = request.keyStorePassword;
+            certificateRequest.ca = false;
             CertificateResponse certificateResponse = registrationServiceClient
                     .provisionCertificate(certificateRequest);
 
