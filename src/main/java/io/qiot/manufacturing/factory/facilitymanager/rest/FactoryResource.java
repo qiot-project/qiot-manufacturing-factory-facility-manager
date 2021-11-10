@@ -10,7 +10,7 @@ import javax.ws.rs.core.MediaType;
 
 import org.slf4j.Logger;
 
-import io.qiot.manufacturing.factory.facilitymanager.service.factory.FactoryService;
+import io.qiot.manufacturing.factory.facilitymanager.service.factory.SubscriptionService;
 
 /**
  * Validation through hibernate validator:
@@ -26,12 +26,12 @@ public class FactoryResource {
     Logger LOGGER;
 
     @Inject
-    FactoryService factoryService;
+    SubscriptionService subscriptionService;
 
     @GET
     @Path("/id")
     @Produces(MediaType.APPLICATION_JSON)
     public UUID getFactoryId() {
-        return factoryService.getFactoryId();
+        return subscriptionService.getFactoryId();
     }
 }

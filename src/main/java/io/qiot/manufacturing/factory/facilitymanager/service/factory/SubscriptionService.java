@@ -10,7 +10,7 @@ import io.qiot.manufacturing.factory.facilitymanager.domain.dto.FactoryDataDTO;
  * @author andreabattaglia
  *
  */
-public interface FactoryService {
+public interface SubscriptionService {
 
     UUID getFactoryId();
 
@@ -18,7 +18,7 @@ public interface FactoryService {
 
     String getFactoryName();
 
-    FactoryDataDTO checkRegistration()
-            throws DataValidationException, SubscriptionException;
+    void checkRegistration()
+            throws DataValidationException;
 
 }

@@ -17,7 +17,7 @@ import org.jboss.resteasy.plugins.providers.sse.SseEventProvider;
 import org.slf4j.Logger;
 
 import io.qiot.manufacturing.all.commons.domain.cdi.BootstrapCompletedEventDTO;
-import io.qiot.manufacturing.factory.facilitymanager.service.factory.FactoryService;
+import io.qiot.manufacturing.factory.facilitymanager.service.factory.SubscriptionService;
 import io.quarkus.runtime.StartupEvent;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 
@@ -36,14 +36,14 @@ public class CoreServiceImpl implements CoreService {
     Logger LOGGER;
 
     @Inject
-    FactoryService factoryService;
+    SubscriptionService subscriptionService;
 
     @Inject
     Event<BootstrapCompletedEventDTO> event;
 
     void onStart(@Observes StartupEvent ev) throws Exception {
         LOGGER.debug("The application is starting...{}");
-        factoryService.checkRegistration();
+        subscriptionService.checkRegistration();
         event.fire(new BootstrapCompletedEventDTO());
     }
 }

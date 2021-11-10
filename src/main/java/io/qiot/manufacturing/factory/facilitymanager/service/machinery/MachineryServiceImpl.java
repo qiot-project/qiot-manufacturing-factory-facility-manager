@@ -16,7 +16,7 @@ import io.qiot.manufacturing.datacenter.commons.domain.subscription.MachinerySub
 import io.qiot.manufacturing.factory.commons.domain.registration.EdgeSubscriptionRequest;
 import io.qiot.manufacturing.factory.facilitymanager.domain.pojo.MachineryBean;
 import io.qiot.manufacturing.factory.facilitymanager.persistence.MachineryRepository;
-import io.qiot.manufacturing.factory.facilitymanager.service.factory.FactoryService;
+import io.qiot.manufacturing.factory.facilitymanager.service.factory.SubscriptionService;
 import io.qiot.manufacturing.factory.facilitymanager.service.registration.PlantManagerClient;
 import io.qiot.manufacturing.factory.facilitymanager.util.converter.MachineryConverter;
 import io.qiot.ubi.all.registration.client.RegistrationServiceClient;
@@ -34,7 +34,7 @@ class MachineryServiceImpl implements MachineryService {
     Logger LOGGER;
 
     @Inject
-    FactoryService factoryService;
+    SubscriptionService subscriptionService;
 
     @Inject
     MachineryRepository machineryRepository;
@@ -63,7 +63,7 @@ class MachineryServiceImpl implements MachineryService {
              * issuer (delegate)
              */
             CertificateRequest certificateRequest = new CertificateRequest();
-            certificateRequest.domain = "." + factoryService.getFactoryId();
+            certificateRequest.domain = "." + subscriptionService.getFactoryId();
             ;
             certificateRequest.serial = request.serial;
             certificateRequest.name = request.name;
@@ -83,7 +83,7 @@ class MachineryServiceImpl implements MachineryService {
              * 2 - Subscribe machinery (Globally)
              */
             MachinerySubscriptionRequest msRequest = new MachinerySubscriptionRequest();
-            msRequest.factoryId = factoryService.getFactoryId();
+            msRequest.factoryId = subscriptionService.getFactoryId();
             msRequest.name = request.name;
             msRequest.serial = request.serial;
             msRequest.keyStorePassword = request.keyStorePassword;
