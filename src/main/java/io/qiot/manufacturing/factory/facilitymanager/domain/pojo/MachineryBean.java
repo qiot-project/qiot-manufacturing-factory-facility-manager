@@ -7,9 +7,14 @@ import java.util.UUID;
 import javax.persistence.Cacheable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
+
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Type;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import io.quarkus.runtime.annotations.RegisterForReflection;
@@ -22,6 +27,9 @@ import io.quarkus.runtime.annotations.RegisterForReflection;
 public class MachineryBean extends PanacheEntityBase {
 
     @Id
+    @GenericGenerator(name = "machinery-uuid-gen", strategy = "uuid2")
+    @GeneratedValue(generator = "machinery-uuid-gen")
+    @Type(type = "pg-uuid")
     public UUID id;
     @Column(nullable = false)
     public String serial;
@@ -30,7 +38,7 @@ public class MachineryBean extends PanacheEntityBase {
     @Column(nullable = false)
     public boolean active = true;
     @Column(name = "registered_on", nullable = false, columnDefinition = "TIMESTAMP")
-//    @CreationTimestamp
+    @CreationTimestamp
     public Instant registeredOn;
 
     @Override

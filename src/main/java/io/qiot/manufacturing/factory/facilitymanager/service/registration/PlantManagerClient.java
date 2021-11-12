@@ -22,9 +22,9 @@ public interface PlantManagerClient {
     public SubscriptionResponse subscribeFactory(
             FactorySubscriptionRequest request);
 
-    @POST
-    @Path("/machinery")
-    public SubscriptionResponse subscribeMachinery(
-            MachinerySubscriptionRequest request);
+//    @POST
+//    @Path("/machinery")
+//    public SubscriptionResponse subscribeMachinery(
+//            MachinerySubscriptionRequest request);
 
 }

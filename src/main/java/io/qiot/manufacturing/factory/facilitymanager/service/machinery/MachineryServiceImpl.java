@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.slf4j.Logger;
@@ -12,7 +13,6 @@ import org.slf4j.Logger;
 import io.qiot.manufacturing.all.commons.domain.landscape.MachineryDTO;
 import io.qiot.manufacturing.all.commons.domain.landscape.SubscriptionResponse;
 import io.qiot.manufacturing.all.commons.exception.SubscriptionException;
-import io.qiot.manufacturing.datacenter.commons.domain.subscription.MachinerySubscriptionRequest;
 import io.qiot.manufacturing.factory.commons.domain.registration.EdgeSubscriptionRequest;
 import io.qiot.manufacturing.factory.facilitymanager.domain.pojo.MachineryBean;
 import io.qiot.manufacturing.factory.facilitymanager.persistence.MachineryRepository;
@@ -49,89 +49,110 @@ class MachineryServiceImpl implements MachineryService {
     @Inject
     @RestClient
     PlantManagerClient plantManagerClient;
+//
+//    @Inject
+//    Event<NewMachinerySubscribedEventDTO> event;
 
+    @Transactional
     @Override
     public SubscriptionResponse subscribe(EdgeSubscriptionRequest request)
             throws SubscriptionException {
 
         SubscriptionResponse subscriptionResponse = null;
+        MachineryBean machineryBean = null;
 
         try {
 
             /*
-             * 1 - Provision machinery certificates from the local (factory)
+             * 1 - persist & flush the new entity locally
+             */
+            machineryBean = persistEntity(request);
+
+            /*
+             * 2 - Provision machinery certificates from the local (factory)
              * issuer (delegate)
              */
-            CertificateRequest certificateRequest = new CertificateRequest();
-            certificateRequest.domain = "." + subscriptionService.getFactoryId();
-            ;
-            certificateRequest.serial = request.serial;
-            certificateRequest.name = request.name;
-            certificateRequest.keyStorePassword = request.keyStorePassword;
-            certificateRequest.ca = false;
-            CertificateResponse certificateResponse = registrationServiceClient
-                    .provisionCertificate(certificateRequest);
-
-            LOGGER.debug("Certificates for the new Machinery created:"//
-                    + "\nKEYSTORE:\n{}"//
-                    + "\n"//
-                    + "\nTRUSTSTORE:\n{}", //
-                    certificateResponse.keystore,
-                    certificateResponse.truststore);
+            CertificateResponse certificateResponse = requestCertificate(
+                    request, machineryBean);
 
             /*
-             * 2 - Subscribe machinery (Globally)
+             * 3 - Add certs to subs response
              */
-            MachinerySubscriptionRequest msRequest = new MachinerySubscriptionRequest();
-            msRequest.factoryId = subscriptionService.getFactoryId();
-            msRequest.name = request.name;
-            msRequest.serial = request.serial;
-            msRequest.keyStorePassword = request.keyStorePassword;
-            while (subscriptionResponse == null) {
-                // TODO: put sleep time in application.properties
-                long sleepTime = 2000;
-                try {
-                    subscriptionResponse = plantManagerClient
-                            .subscribeMachinery(msRequest);
-                } catch (Exception e) {
-                    LOGGER.info("An error occurred registering the machinery. "
-                            + "Retrying in {} millis.\n Error message: {}",
-                            sleepTime, e.getMessage());
-                    try {
-                        Thread.sleep(sleepTime);
-                    } catch (InterruptedException ie) {
-                        Thread.currentThread().interrupt();
-                    }
-                }
-            }
+            LOGGER.info("Building the response to the caller...");
 
-            /*
-             * add certs to subs response
-             */
+            subscriptionResponse = new SubscriptionResponse();
+            subscriptionResponse.id = machineryBean.id;
             subscriptionResponse.keystore = certificateResponse.keystore;
             subscriptionResponse.truststore = certificateResponse.truststore;
+            subscriptionResponse.subscribedOn = machineryBean.registeredOn;
 
-            /*
-             * persist & flush the new entity locally
-             */
-            MachineryBean machineryBean = new MachineryBean();
-            machineryBean.serial = request.serial;
-            machineryBean.name = request.name;
-            machineryBean.id = subscriptionResponse.id;
-            machineryBean.registeredOn = subscriptionResponse.subscribedOn;
 
-            machineryRepository.persist(machineryBean);
+        LOGGER.info("Sending the response back to the caller: {}",
+                subscriptionResponse);
+        return subscriptionResponse;
+            
 
         } catch (Exception e) {
             // machineryRepository.delete(machineryBean);
-            LOGGER.error(
-                    "An error occurred retrieving the certificates for the factory.",
-                    e);
-            // TODO: improve exception handling
-            throw new SubscriptionException(e);
-        }
+            LOGGER.error("An error occurred subscribing the machinery.", e);
 
-        return subscriptionResponse;
+//            if (Objects.nonNull(machineryBean.id))
+//                machineryRepository.deleteById(machineryBean.id);
+
+            // TODO: improve exception handling with the cert removal
+            throw new SubscriptionException(e);
+//        } finally {
+//            MachinerySubscriptionRequest msRequest = new MachinerySubscriptionRequest();
+//            msRequest.id = machineryBean.id;
+//            msRequest.factoryId = subscriptionService.getFactoryId();
+//            msRequest.name = request.name;
+//            msRequest.serial = request.serial;
+//            msRequest.keyStorePassword = request.keyStorePassword;
+//            msRequest.subscribedOn = machineryBean.registeredOn;
+//
+//            NewMachinerySubscribedEventDTO eventDTO = new NewMachinerySubscribedEventDTO();
+//            eventDTO.machinerySubscriptionRequest = msRequest;
+//            event.fire(eventDTO);
+        }
+    }
+
+    private CertificateResponse requestCertificate(
+            EdgeSubscriptionRequest request, MachineryBean machineryBean) {
+        LOGGER.info(
+                "Attempting to request a new certificate for the Machinery...");
+
+        CertificateRequest certificateRequest = new CertificateRequest();
+        certificateRequest.id = machineryBean.id;
+        certificateRequest.domain = "."
+                + subscriptionService.getFactoryName();
+        certificateRequest.serial = request.serial;
+        certificateRequest.name = request.name;
+        certificateRequest.keyStorePassword = request.keyStorePassword;
+        certificateRequest.ca = false;
+        CertificateResponse certificateResponse = registrationServiceClient
+                .provisionCertificate(certificateRequest);
+
+        LOGGER.info("Certificate for the new Machinery {} created:"//
+                + "\nKEYSTORE:\n{}"//
+                + "\n"//
+                + "\nTRUSTSTORE:\n{}", //
+                machineryBean, certificateResponse.keystore,
+                certificateResponse.truststore);
+        return certificateResponse;
+    }
+
+    private MachineryBean persistEntity(EdgeSubscriptionRequest request) {
+        MachineryBean machineryBean;
+        machineryBean = new MachineryBean();
+        machineryBean.serial = request.serial;
+        machineryBean.name = request.name;
+
+        LOGGER.info("Attempting to persist a new Machinery entity: {}",
+                machineryBean);
+        machineryRepository.persist(machineryBean);
+        LOGGER.info("Machinery entity persisted, machinery ID assigned: {}",
+                machineryBean.id);
+        return machineryBean;
     }
 
     @Override
