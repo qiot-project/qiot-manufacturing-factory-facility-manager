@@ -1,5 +1,6 @@
 package io.qiot.manufacturing.factory.facilitymanager.service.machinery;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -49,9 +50,9 @@ class MachineryServiceImpl implements MachineryService {
     @Inject
     @RestClient
     PlantManagerClient plantManagerClient;
-//
-//    @Inject
-//    Event<NewMachinerySubscribedEventDTO> event;
+    //
+    // @Inject
+    // Event<NewMachinerySubscribedEventDTO> event;
 
     @Transactional
     @Override
@@ -86,33 +87,33 @@ class MachineryServiceImpl implements MachineryService {
             subscriptionResponse.truststore = certificateResponse.truststore;
             subscriptionResponse.subscribedOn = machineryBean.registeredOn;
 
-
-        LOGGER.info("Sending the response back to the caller: {}",
-                subscriptionResponse);
-        return subscriptionResponse;
-            
+            LOGGER.info("Sending the response back to the caller: {}",
+                    subscriptionResponse);
+            return subscriptionResponse;
 
         } catch (Exception e) {
             // machineryRepository.delete(machineryBean);
             LOGGER.error("An error occurred subscribing the machinery.", e);
 
-//            if (Objects.nonNull(machineryBean.id))
-//                machineryRepository.deleteById(machineryBean.id);
+            // if (Objects.nonNull(machineryBean.id))
+            // machineryRepository.deleteById(machineryBean.id);
 
             // TODO: improve exception handling with the cert removal
             throw new SubscriptionException(e);
-//        } finally {
-//            MachinerySubscriptionRequest msRequest = new MachinerySubscriptionRequest();
-//            msRequest.id = machineryBean.id;
-//            msRequest.factoryId = subscriptionService.getFactoryId();
-//            msRequest.name = request.name;
-//            msRequest.serial = request.serial;
-//            msRequest.keyStorePassword = request.keyStorePassword;
-//            msRequest.subscribedOn = machineryBean.registeredOn;
-//
-//            NewMachinerySubscribedEventDTO eventDTO = new NewMachinerySubscribedEventDTO();
-//            eventDTO.machinerySubscriptionRequest = msRequest;
-//            event.fire(eventDTO);
+            // } finally {
+            // MachinerySubscriptionRequest msRequest = new
+            // MachinerySubscriptionRequest();
+            // msRequest.id = machineryBean.id;
+            // msRequest.factoryId = subscriptionService.getFactoryId();
+            // msRequest.name = request.name;
+            // msRequest.serial = request.serial;
+            // msRequest.keyStorePassword = request.keyStorePassword;
+            // msRequest.subscribedOn = machineryBean.registeredOn;
+            //
+            // NewMachinerySubscribedEventDTO eventDTO = new
+            // NewMachinerySubscribedEventDTO();
+            // eventDTO.machinerySubscriptionRequest = msRequest;
+            // event.fire(eventDTO);
         }
     }
 
@@ -123,8 +124,7 @@ class MachineryServiceImpl implements MachineryService {
 
         CertificateRequest certificateRequest = new CertificateRequest();
         certificateRequest.id = machineryBean.id;
-        certificateRequest.domain = "."
-                + subscriptionService.getFactoryName();
+        certificateRequest.domain = "." + subscriptionService.getFactoryName();
         certificateRequest.serial = request.serial;
         certificateRequest.name = request.name;
         certificateRequest.keyStorePassword = request.keyStorePassword;
@@ -146,6 +146,7 @@ class MachineryServiceImpl implements MachineryService {
         machineryBean = new MachineryBean();
         machineryBean.serial = request.serial;
         machineryBean.name = request.name;
+        machineryBean.registeredOn = Instant.now();
 
         LOGGER.info("Attempting to persist a new Machinery entity: {}",
                 machineryBean);
